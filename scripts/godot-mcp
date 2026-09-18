@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -eu
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# shellcheck disable=SC1091
+. "$SCRIPT_DIR/lib/common.sh"
+
+if [ ! -x "$NODE_DIR/bin/node" ] || [ ! -f "$MCP_DIR/build/index.js" ]; then
+	echo "Godot MCP is not installed. Run ./scripts/bootstrap first." >&2
+	exit 1
+fi
+
+exec "$NODE_DIR/bin/node" "$MCP_DIR/build/index.js"

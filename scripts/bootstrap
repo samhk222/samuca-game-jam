@@ -1,0 +1,185 @@
+#!/bin/sh
+
+set -eu
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# shellcheck disable=SC1091
+. "$SCRIPT_DIR/lib/common.sh"
+
+CACHE_DIR="$TOOLS_DIR/cache"
+GODOT_DIR="$TOOLS_DIR/godot"
+TEMPLATE_DIR="$GODOT_TEMPLATE_DIR"
+GODOT_RELEASE_URL="https://github.com/godotengine/godot/releases/download/$GODOT_VERSION-$GODOT_STATUS"
+
+mkdir -p "$CACHE_DIR"
+
+sha256_file() {
+	if command -v shasum >/dev/null 2>&1; then
+		shasum -a 256 "$1" | awk '{print $1}'
+	elif command -v sha256sum >/dev/null 2>&1; then
+		sha256sum "$1" | awk '{print $1}'
+	else
+		echo "A SHA-256 utility (shasum or sha256sum) is required." >&2
+		exit 1
+	fi
+}
+
+download() {
+	url=$1
+	destination=$2
+	expected=$3
+
+	if [ -f "$destination" ] && [ "$(sha256_file "$destination")" = "$expected" ]; then
+		echo "Using cached $(basename "$destination")"
+		return
+	fi
+
+	rm -f "$destination"
+	echo "Downloading $(basename "$destination")"
+	curl --fail --location --retry 3 --output "$destination" "$url"
+	actual=$(sha256_file "$destination")
+	if [ "$actual" != "$expected" ]; then
+		rm -f "$destination"
+		echo "Checksum mismatch for $(basename "$destination")" >&2
+		echo "Expected: $expected" >&2
+		echo "Actual:   $actual" >&2
+		exit 1
+	fi
+}
+
+install_node() {
+	os=$(uname -s)
+	arch=$(uname -m)
+	case "$os:$arch" in
+		Darwin:arm64)
+			platform=darwin-arm64
+			checksum=$NODE_DARWIN_ARM64_SHA256
+			;;
+		Darwin:x86_64)
+			platform=darwin-x64
+			checksum=$NODE_DARWIN_X64_SHA256
+			;;
+		Linux:aarch64|Linux:arm64)
+			platform=linux-arm64
+			checksum=$NODE_LINUX_ARM64_SHA256
+			;;
+		Linux:x86_64)
+			platform=linux-x64
+			checksum=$NODE_LINUX_X64_SHA256
+			;;
+		*)
+			echo "Unsupported Node.js platform: $os $arch" >&2
+			exit 1
+			;;
+	esac
+
+	if [ -x "$NODE_DIR/bin/node" ] && [ "$("$NODE_DIR/bin/node" --version)" = "v$NODE_VERSION" ]; then
+		echo "Node.js $NODE_VERSION is installed"
+		return
+	fi
+
+	archive="node-v$NODE_VERSION-$platform.tar.gz"
+	download "https://nodejs.org/dist/v$NODE_VERSION/$archive" "$CACHE_DIR/$archive" "$checksum"
+	staging="$TOOLS_DIR/node-staging"
+	rm -rf "$staging" "$NODE_DIR"
+	mkdir -p "$staging"
+	tar -xzf "$CACHE_DIR/$archive" -C "$staging"
+	mv "$staging/node-v$NODE_VERSION-$platform" "$NODE_DIR"
+	rmdir "$staging"
+	echo "Installed Node.js $NODE_VERSION"
+}
+
+install_godot() {
+	os=$(uname -s)
+	arch=$(uname -m)
+	case "$os:$arch" in
+		Darwin:*)
+			archive="Godot_v$GODOT_VERSION-${GODOT_STATUS}_macos.universal.zip"
+			checksum=$GODOT_MACOS_SHA256
+			extracted="Godot.app"
+			;;
+		Linux:aarch64|Linux:arm64)
+			archive="Godot_v$GODOT_VERSION-${GODOT_STATUS}_linux.arm64.zip"
+			checksum=$GODOT_LINUX_ARM64_SHA256
+			extracted="Godot_v$GODOT_VERSION-${GODOT_STATUS}_linux.arm64"
+			;;
+		Linux:x86_64)
+			archive="Godot_v$GODOT_VERSION-${GODOT_STATUS}_linux.x86_64.zip"
+			checksum=$GODOT_LINUX_X86_64_SHA256
+			extracted="Godot_v$GODOT_VERSION-${GODOT_STATUS}_linux.x86_64"
+			;;
+		*)
+			echo "Unsupported Godot platform: $os $arch" >&2
+			exit 1
+			;;
+	esac
+
+	if [ -x "$GODOT_BIN" ] && "$GODOT_BIN" --version | grep -q "^$GODOT_VERSION"; then
+		echo "Godot $GODOT_VERSION is installed"
+		return
+	fi
+
+	download "$GODOT_RELEASE_URL/$archive" "$CACHE_DIR/$archive" "$checksum"
+	staging="$TOOLS_DIR/godot-staging"
+	rm -rf "$staging" "$GODOT_DIR"
+	mkdir -p "$staging" "$GODOT_DIR"
+	unzip -q "$CACHE_DIR/$archive" -d "$staging"
+	if [ "$os" = "Darwin" ]; then
+		mv "$staging/$extracted" "$GODOT_DIR/Godot.app"
+	else
+		mv "$staging/$extracted" "$GODOT_BIN"
+		chmod +x "$GODOT_BIN"
+	fi
+	rmdir "$staging"
+	echo "Installed Godot $GODOT_VERSION"
+}
+
+install_templates() {
+	if [ -f "$TEMPLATE_DIR/web_nothreads_release.zip" ]; then
+		echo "Godot Web export templates are installed"
+		return
+	fi
+
+	archive="Godot_v$GODOT_VERSION-${GODOT_STATUS}_export_templates.tpz"
+	download "$GODOT_RELEASE_URL/$archive" "$CACHE_DIR/$archive" "$GODOT_TEMPLATES_SHA256"
+	staging="$TOOLS_DIR/templates-staging"
+	rm -rf "$staging" "$TEMPLATE_DIR"
+	mkdir -p "$staging" "$TEMPLATE_DIR"
+	unzip -q "$CACHE_DIR/$archive" "templates/web*" -d "$staging"
+	mv "$staging"/templates/web* "$TEMPLATE_DIR/"
+	rmdir "$staging/templates" "$staging"
+	echo "Installed Godot Web export templates"
+}
+
+install_mcp() {
+	install_id="$GODOT_MCP_COMMIT sdk=$GODOT_MCP_SDK_VERSION axios=$GODOT_MCP_AXIOS_VERSION"
+	if [ -f "$MCP_DIR/.installed-toolchain" ] &&
+		[ "$(cat "$MCP_DIR/.installed-toolchain")" = "$install_id" ] &&
+		[ -f "$MCP_DIR/build/index.js" ]; then
+		echo "Godot MCP is installed"
+		return
+	fi
+
+	rm -rf "$MCP_DIR"
+	echo "Installing Godot MCP at $GODOT_MCP_COMMIT"
+	git clone --quiet "$GODOT_MCP_REPOSITORY" "$MCP_DIR"
+	git -C "$MCP_DIR" checkout --quiet "$GODOT_MCP_COMMIT"
+	"$NODE_DIR/bin/npm" --prefix "$MCP_DIR" ci --ignore-scripts --no-audit
+	"$NODE_DIR/bin/npm" --prefix "$MCP_DIR" install --save-exact --ignore-scripts --no-audit \
+		"@modelcontextprotocol/sdk@$GODOT_MCP_SDK_VERSION" \
+		"axios@$GODOT_MCP_AXIOS_VERSION"
+	"$NODE_DIR/bin/npm" --prefix "$MCP_DIR" run build
+	"$NODE_DIR/bin/npm" --prefix "$MCP_DIR" audit --omit=dev
+	printf '%s\n' "$install_id" > "$MCP_DIR/.installed-toolchain"
+}
+
+install_node
+install_godot
+touch "$GODOT_SELF_CONTAINED_DIR/_sc_"
+install_templates
+install_mcp
+
+echo
+"$SCRIPT_DIR/verify"
+echo
+echo "Setup complete. Open the editor with: ./scripts/godot --editor"

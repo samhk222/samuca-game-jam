@@ -1,0 +1,14 @@
+{
+	"chat.tools.terminal.autoApprove": {
+		"./scripts/bootstrap": true,
+		"unzip": true,
+		"printf": true,
+		"./scripts/godot-mcp": true,
+		"exit": true,
+		".tools/node/bin/node": true,
+		".tools/node/bin/npm": true,
+		"./scripts/serve-web": true,
+		"./scripts/verify": true,
+		"test": true
+	}
+}

@@ -1,0 +1,8 @@
+{
+	"servers": {
+		"godot": {
+			"type": "stdio",
+			"command": "${workspaceFolder}/scripts/godot-mcp"
+		}
+	}
+}

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -eu
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+
+rm -rf "$REPO_ROOT/build/web"
+mkdir -p "$REPO_ROOT/build/web"
+touch "$REPO_ROOT/build/.gdignore"
+exec "$SCRIPT_DIR/godot" --headless --export-release Web "$REPO_ROOT/build/web/index.html"

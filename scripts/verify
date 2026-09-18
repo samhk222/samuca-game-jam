@@ -1,0 +1,47 @@
+#!/bin/sh
+
+set -eu
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+# shellcheck disable=SC1091
+. "$SCRIPT_DIR/lib/common.sh"
+
+require_file() {
+	if [ ! -e "$1" ]; then
+		echo "Missing: $1" >&2
+		exit 1
+	fi
+}
+
+require_file "$GODOT_BIN"
+require_file "$NODE_DIR/bin/node"
+require_file "$MCP_DIR/build/index.js"
+require_file "$GODOT_TEMPLATE_DIR/web_nothreads_release.zip"
+
+godot_version=$("$GODOT_BIN" --version)
+node_version=$("$NODE_DIR/bin/node" --version)
+
+case "$godot_version" in
+	"$GODOT_VERSION"*) ;;
+	*)
+		echo "Expected Godot $GODOT_VERSION, found $godot_version" >&2
+		exit 1
+		;;
+esac
+
+if [ "$node_version" != "v$NODE_VERSION" ]; then
+	echo "Expected Node.js v$NODE_VERSION, found $node_version" >&2
+	exit 1
+fi
+
+"$GODOT_BIN" --headless --path "$REPO_ROOT" --editor --quit
+"$SCRIPT_DIR/export-web"
+
+require_file "$REPO_ROOT/build/web/index.html"
+require_file "$REPO_ROOT/build/web/index.wasm"
+
+echo "Godot: $godot_version"
+echo "Node.js: $node_version"
+echo "MCP: $GODOT_MCP_COMMIT"
+echo "Web export: build/web/index.html"
+echo "Portable development environment verified"
