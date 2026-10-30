@@ -5,32 +5,35 @@ const BoardGenerator := preload("res://scripts/game/board_generator.gd")
 const Difficulty := preload("res://scripts/game/difficulty.gd")
 const Records := preload("res://scripts/game/records.gd")
 const RoundState := preload("res://scripts/game/round_state.gd")
+const UiTheme := preload("res://scripts/ui_theme.gd")
 
 var records := Records.new()
 var current_seed := 0
 var current_level := 0
 var current_id := ""
 
-@onready var play_area: Control = $Margin/Columns/Center/PlayArea
-@onready var timer_label: Label = $Margin/Columns/Center/TimerLabel
-@onready var status_label: Label = $Margin/Columns/Center/StatusLabel
-@onready var level_buttons: GridContainer = $Margin/Columns/Left/LevelButtons
-@onready var id_edit: LineEdit = $Margin/Columns/Left/IdRow/IdEdit
-@onready var id_error: Label = $Margin/Columns/Left/IdError
-@onready var record_label: Label = $Margin/Columns/Left/RecordLabel
+@onready var play_area: Control = %PlayArea
+@onready var timer_label: Label = %TimerLabel
+@onready var penalty_label: Label = %PenaltyLabel
+@onready var status_label: Label = %StatusLabel
+@onready var level_buttons: GridContainer = %LevelButtons
+@onready var id_edit: LineEdit = %IdEdit
+@onready var id_error: Label = %IdError
+@onready var record_label: Label = %RecordLabel
 @onready var powerup_buttons := {
-	"flash": $Margin/Columns/Right/FlashButton,
-	"lantern": $Margin/Columns/Right/LanternButton,
-	"radar": $Margin/Columns/Right/RadarButton,
+	"flash": %FlashButton,
+	"lantern": %LanternButton,
+	"radar": %RadarButton,
 }
 
 
 func _ready() -> void:
 	randomize()
-	$Margin/Columns/Left/RestartButton.pressed.connect(func(): _load_board(current_seed, current_level))
-	$Margin/Columns/Left/NewButton.pressed.connect(func(): _load_board(BoardId.random_seed(), current_level))
-	$Margin/Columns/Left/LoadButton.pressed.connect(_load_typed_id)
-	$Margin/Columns/Left/IdRow/CopyButton.pressed.connect(func(): DisplayServer.clipboard_set(current_id))
+	theme = UiTheme.build()
+	%RestartButton.pressed.connect(func(): _load_board(current_seed, current_level))
+	%NewButton.pressed.connect(func(): _load_board(BoardId.random_seed(), current_level))
+	%LoadButton.pressed.connect(_load_typed_id)
+	%CopyButton.pressed.connect(func(): DisplayServer.clipboard_set(current_id))
 	id_edit.text_submitted.connect(func(_text): _load_typed_id())
 	var level_group := ButtonGroup.new()
 	for level in Difficulty.LEVEL_NAMES.size():
@@ -39,8 +42,6 @@ func _ready() -> void:
 		button.toggle_mode = true
 		button.button_group = level_group
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.add_theme_color_override("font_pressed_color", Color(1, 0.84, 0.4))
-		button.add_theme_color_override("font_hover_pressed_color", Color(1, 0.84, 0.4))
 		button.pressed.connect(func(): _load_board(current_seed, level))
 		level_buttons.add_child(button)
 	for id in powerup_buttons:
@@ -55,10 +56,8 @@ func _process(_delta: float) -> void:
 	var state: RoundState = play_area.state
 	if state == null:
 		return
-	var text := _format_time(state.total_time())
-	if state.penalty > 0.0:
-		text += "  (penalty +%d s)" % roundi(state.penalty)
-	timer_label.text = text
+	timer_label.text = _format_time(state.total_time())
+	penalty_label.text = "+%d s penalty" % roundi(state.penalty) if state.penalty > 0.0 else ""
 	for id in powerup_buttons:
 		powerup_buttons[id].disabled = state.phase != RoundState.Phase.DARK or state.used.has(id)
 
@@ -70,7 +69,8 @@ func _load_board(seed: int, level: int) -> void:
 	current_id = BoardId.encode(seed, level)
 	id_edit.text = current_id
 	id_error.visible = false
-	level_buttons.get_child(level).set_pressed_no_signal(true)
+	for button: Button in level_buttons.get_children():
+		button.set_pressed_no_signal(button.get_index() == level)
 	_update_record()
 	play_area.start_round(BoardGenerator.generate(seed, level))
 
@@ -106,7 +106,7 @@ func _on_finished(total: float, misses: int) -> void:
 
 func _update_record() -> void:
 	var best := records.best(current_id)
-	record_label.text = "Best: —" if best < 0.0 else "Best: %s" % _format_time(best)
+	record_label.text = "—" if best < 0.0 else _format_time(best)
 
 
 func _format_time(seconds: float) -> String:

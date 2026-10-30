@@ -20,7 +20,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.07, 0.07, 0.1, 1)
+color = Color(0.045, 0.04, 0.06, 1)
 
 [node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -29,140 +29,209 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
 
 [node name="Columns" type="HBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 14
 
-[node name="Left" type="VBoxContainer" parent="Margin/Columns"]
-custom_minimum_size = Vector2(200, 0)
+[node name="Left" type="PanelContainer" parent="Margin/Columns"]
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="Margin/Columns/Left"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Title" type="Label" parent="Margin/Columns/Left"]
+[node name="Title" type="Label" parent="Margin/Columns/Left/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.84, 0.4, 1)
-theme_override_font_sizes/font_size = 30
+theme_type_variation = &"Title"
 text = "Only One"
 
-[node name="Tagline" type="Label" parent="Margin/Columns/Left"]
+[node name="Tagline" type="Label" parent="Margin/Columns/Left/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.78, 1)
-theme_override_font_sizes/font_size = 13
+theme_type_variation = &"Muted"
 text = "Only one candle is different. Remember where it was."
 autowrap_mode = 3
 
-[node name="RestartButton" type="Button" parent="Margin/Columns/Left"]
+[node name="Sep1" type="HSeparator" parent="Margin/Columns/Left/VBox"]
 layout_mode = 2
-text = "Restart"
 
-[node name="LevelLabel" type="Label" parent="Margin/Columns/Left"]
+[node name="DifficultyHeader" type="Label" parent="Margin/Columns/Left/VBox"]
 layout_mode = 2
-text = "Difficulty"
+theme_type_variation = &"Header"
+text = "DIFFICULTY"
 
-[node name="LevelButtons" type="GridContainer" parent="Margin/Columns/Left"]
+[node name="LevelButtons" type="GridContainer" parent="Margin/Columns/Left/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
 columns = 2
 
-[node name="IdLabel" type="Label" parent="Margin/Columns/Left"]
-layout_mode = 2
-text = "Board ID"
-
-[node name="IdRow" type="HBoxContainer" parent="Margin/Columns/Left"]
+[node name="Sep2" type="HSeparator" parent="Margin/Columns/Left/VBox"]
 layout_mode = 2
 
-[node name="IdEdit" type="LineEdit" parent="Margin/Columns/Left/IdRow"]
+[node name="BoardHeader" type="Label" parent="Margin/Columns/Left/VBox"]
+layout_mode = 2
+theme_type_variation = &"Header"
+text = "BOARD ID"
+
+[node name="IdRow" type="HBoxContainer" parent="Margin/Columns/Left/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="IdEdit" type="LineEdit" parent="Margin/Columns/Left/VBox/IdRow"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 max_length = 8
 
-[node name="CopyButton" type="Button" parent="Margin/Columns/Left/IdRow"]
+[node name="CopyButton" type="Button" parent="Margin/Columns/Left/VBox/IdRow"]
+unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Copy the board ID to share it."
 text = "Copy"
 
-[node name="LoadButton" type="Button" parent="Margin/Columns/Left"]
+[node name="IdButtons" type="HBoxContainer" parent="Margin/Columns/Left/VBox"]
 layout_mode = 2
-text = "Load ID"
+theme_override_constants/separation = 6
 
-[node name="NewButton" type="Button" parent="Margin/Columns/Left"]
+[node name="LoadButton" type="Button" parent="Margin/Columns/Left/VBox/IdButtons"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Play the board ID typed above."
+text = "Load"
+
+[node name="NewButton" type="Button" parent="Margin/Columns/Left/VBox/IdButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Generate a brand new board."
 text = "New board"
 
-[node name="IdError" type="Label" parent="Margin/Columns/Left"]
+[node name="IdError" type="Label" parent="Margin/Columns/Left/VBox"]
+unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.4, 0.35, 1)
+theme_type_variation = &"Error"
 text = "Invalid ID"
 
-[node name="RecordLabel" type="Label" parent="Margin/Columns/Left"]
+[node name="RestartButton" type="Button" parent="Margin/Columns/Left/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
-text = "Best: —"
+tooltip_text = "Play this same board again."
+text = "Restart"
+
+[node name="Spacer" type="Control" parent="Margin/Columns/Left/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BestHeader" type="Label" parent="Margin/Columns/Left/VBox"]
+layout_mode = 2
+theme_type_variation = &"Header"
+text = "BEST TIME"
+
+[node name="RecordLabel" type="Label" parent="Margin/Columns/Left/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BigValue"
+text = "—"
 
 [node name="Center" type="VBoxContainer" parent="Margin/Columns"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/separation = 6
 
-[node name="TimerLabel" type="Label" parent="Margin/Columns/Center"]
+[node name="ClockRow" type="HBoxContainer" parent="Margin/Columns/Center"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+alignment = 1
+theme_override_constants/separation = 10
+
+[node name="TimerLabel" type="Label" parent="Margin/Columns/Center/ClockRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"Clock"
 text = "00:00.000"
-horizontal_alignment = 1
+
+[node name="PenaltyLabel" type="Label" parent="Margin/Columns/Center/ClockRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"Penalty"
+text = ""
 
 [node name="PlayArea" type="Control" parent="Margin/Columns/Center"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 script = ExtResource("2")
 
 [node name="StatusLabel" type="Label" parent="Margin/Columns/Center"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Click the dark area to light it up."
 horizontal_alignment = 1
-autowrap_mode = 3
 
-[node name="Right" type="VBoxContainer" parent="Margin/Columns"]
-custom_minimum_size = Vector2(170, 0)
+[node name="Right" type="PanelContainer" parent="Margin/Columns"]
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="Margin/Columns/Right"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="PowerTitle" type="Label" parent="Margin/Columns/Right"]
+[node name="PowerHeader" type="Label" parent="Margin/Columns/Right/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.84, 0.4, 1)
-theme_override_font_sizes/font_size = 18
-text = "Power-ups"
+theme_type_variation = &"Header"
+text = "POWER-UPS"
 
-[node name="PowerHint" type="Label" parent="Margin/Columns/Right"]
+[node name="PowerHint" type="Label" parent="Margin/Columns/Right/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.7, 0.78, 1)
-theme_override_font_sizes/font_size = 13
-text = "Once each, after the lights go out."
+theme_type_variation = &"Muted"
+text = "Once each per round, after the lights go out."
 autowrap_mode = 3
 
-[node name="FlashButton" type="Button" parent="Margin/Columns/Right"]
+[node name="FlashButton" type="Button" parent="Margin/Columns/Right/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Lights everything up for half a second."
-text = "Flash (+3 s)"
+text = "Flash  ·  +3 s"
 
-[node name="LanternButton" type="Button" parent="Margin/Columns/Right"]
+[node name="LanternButton" type="Button" parent="Margin/Columns/Right/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "A light follows your mouse for 4 seconds."
-text = "Flashlight (+5 s)"
+text = "Flashlight  ·  +5 s"
 
-[node name="RadarButton" type="Button" parent="Margin/Columns/Right"]
+[node name="RadarButton" type="Button" parent="Margin/Columns/Right/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "For 3 seconds your cursor turns red near the candle and blue far away."
-text = "Radar (+4 s)"
+text = "Radar  ·  +4 s"
 
-[node name="PowerHelp" type="Label" parent="Margin/Columns/Right"]
+[node name="Sep" type="HSeparator" parent="Margin/Columns/Right/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.68, 1)
-theme_override_font_sizes/font_size = 12
-text = "Flash: lights everything for 0.5 s.
-Flashlight: light around the mouse for 4 s.
-Radar: cursor heats up near the candle for 3 s.
 
-Wrong click: +1 s."
+[node name="PowerHelp" type="Label" parent="Margin/Columns/Right/VBox"]
+layout_mode = 2
+theme_type_variation = &"Muted"
+text = "Flash — everything lights up for 0.5 s.
+
+Flashlight — light around your mouse for 4 s.
+
+Radar — cursor glows red near the candle for 3 s."
+autowrap_mode = 3
+
+[node name="Spacer" type="Control" parent="Margin/Columns/Right/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MissHint" type="Label" parent="Margin/Columns/Right/VBox"]
+layout_mode = 2
+theme_type_variation = &"Muted"
+text = "Each wrong click: +1 s"
 autowrap_mode = 3
