@@ -11,7 +11,7 @@ const FLAME_CORE := Color(1.0, 0.97, 0.8)
 const FLAME_BLUE := Color(0.45, 0.72, 1.0)
 const FLAME_ORANGE := Color(1.0, 0.52, 0.12)
 const GLOW := Color(1.0, 0.75, 0.35, 0.1)
-const DRIP := Color(0.85, 0.32, 0.22)
+const DRIP := Color(0.98, 0.8, 0.42)
 const SMOKE := Color(0.6, 0.6, 0.65, 0.5)
 
 

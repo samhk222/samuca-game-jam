@@ -11,7 +11,7 @@ const MISS_PENALTY := 1.0
 const LEVELS: Array[Dictionary] = [
 	{"count": 8, "lit_time": 2.0, "diffs": ["flame_blue"]},
 	{"count": 20, "lit_time": 1.2, "diffs": ["flame_orange", "flame_tilted"]},
-	{"count": 40, "lit_time": 0.6, "diffs": ["no_wick", "wax_drip"]},
+	{"count": 40, "lit_time": 0.45, "diffs": ["no_wick", "wax_drip"]},
 	{"count": 70, "lit_time": 0.3, "diffs": ["wick_bent"]},
 ]
 

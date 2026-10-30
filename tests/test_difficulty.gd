@@ -12,7 +12,7 @@ func test_counts() -> void:
 	var counts := Difficulty.LEVELS.map(func(l): return l.count)
 	var lit := Difficulty.LEVELS.map(func(l): return l.lit_time)
 	check(counts == [8, 20, 40, 70], "counts %s" % [counts])
-	check(lit == [2.0, 1.2, 0.6, 0.3], "lit %s" % [lit])
+	check(lit == [2.0, 1.2, 0.45, 0.3], "lit %s" % [lit])
 
 
 func test_clamp() -> void:
