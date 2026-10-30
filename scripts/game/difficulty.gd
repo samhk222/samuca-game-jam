@@ -1,7 +1,7 @@
 extends RefCounted
 ## All difficulty tuning lives here. Tweak after playtesting.
 
-const LEVEL_NAMES := ["Fácil", "Médio", "Difícil", "Insano"]
+const LEVEL_NAMES := ["Easy", "Medium", "Hard", "Insane"]
 
 ## Seconds added for each click that misses the unique candle.
 const MISS_PENALTY := 1.0

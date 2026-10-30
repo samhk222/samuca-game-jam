@@ -4,7 +4,7 @@ extends RefCounted
 
 const ALL: Array[Dictionary] = [
 	{"id": "flash", "name": "Flash", "duration": 0.5, "penalty": 3.0},
-	{"id": "lantern", "name": "Lanterna", "duration": 4.0, "penalty": 5.0},
+	{"id": "lantern", "name": "Flashlight", "duration": 4.0, "penalty": 5.0},
 	{"id": "radar", "name": "Radar", "duration": 3.0, "penalty": 4.0},
 ]
 

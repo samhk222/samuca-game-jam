@@ -92,7 +92,7 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), LIT_BACKGROUND if show_all else BACKGROUND)
 
 	if phase == RoundState.Phase.WAITING:
-		_draw_centered_text("Clique para acender", 22, Color(0.85, 0.85, 0.9))
+		_draw_centered_text("Click to light up", 22, Color(0.85, 0.85, 0.9))
 		return
 
 	var mouse := get_local_mouse_position()

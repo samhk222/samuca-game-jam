@@ -53,27 +53,24 @@ text = "Only One"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.78, 1)
 theme_override_font_sizes/font_size = 13
-text = "Só uma vela é diferente. Lembre onde ela estava."
+text = "Only one candle is different. Remember where it was."
 autowrap_mode = 3
 
 [node name="RestartButton" type="Button" parent="Margin/Columns/Left"]
 layout_mode = 2
-text = "Reiniciar"
+text = "Restart"
 
 [node name="LevelLabel" type="Label" parent="Margin/Columns/Left"]
 layout_mode = 2
-text = "Dificuldade: Fácil"
+text = "Difficulty"
 
-[node name="LevelSlider" type="HSlider" parent="Margin/Columns/Left"]
+[node name="LevelButtons" type="GridContainer" parent="Margin/Columns/Left"]
 layout_mode = 2
-max_value = 3.0
-rounded = true
-tick_count = 4
-ticks_on_borders = true
+columns = 2
 
 [node name="IdLabel" type="Label" parent="Margin/Columns/Left"]
 layout_mode = 2
-text = "ID do tabuleiro"
+text = "Board ID"
 
 [node name="IdRow" type="HBoxContainer" parent="Margin/Columns/Left"]
 layout_mode = 2
@@ -85,25 +82,25 @@ max_length = 8
 
 [node name="CopyButton" type="Button" parent="Margin/Columns/Left/IdRow"]
 layout_mode = 2
-text = "Copiar"
+text = "Copy"
 
 [node name="LoadButton" type="Button" parent="Margin/Columns/Left"]
 layout_mode = 2
-text = "Carregar ID"
+text = "Load ID"
 
 [node name="NewButton" type="Button" parent="Margin/Columns/Left"]
 layout_mode = 2
-text = "Novo tabuleiro"
+text = "New board"
 
 [node name="IdError" type="Label" parent="Margin/Columns/Left"]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.4, 0.35, 1)
-text = "ID inválido"
+text = "Invalid ID"
 
 [node name="RecordLabel" type="Label" parent="Margin/Columns/Left"]
 layout_mode = 2
-text = "Recorde: —"
+text = "Best: —"
 
 [node name="Center" type="VBoxContainer" parent="Margin/Columns"]
 layout_mode = 2
@@ -112,7 +109,7 @@ size_flags_horizontal = 3
 [node name="TimerLabel" type="Label" parent="Margin/Columns/Center"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 22
-text = "0,00 s"
+text = "00:00.000"
 horizontal_alignment = 1
 
 [node name="PlayArea" type="Control" parent="Margin/Columns/Center"]
@@ -122,7 +119,7 @@ script = ExtResource("2")
 
 [node name="StatusLabel" type="Label" parent="Margin/Columns/Center"]
 layout_mode = 2
-text = "Clique na área preta para acender."
+text = "Click the dark area to light it up."
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -141,31 +138,31 @@ text = "Power-ups"
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.78, 1)
 theme_override_font_sizes/font_size = 13
-text = "Só uma vez cada, depois que apagar."
+text = "Once each, after the lights go out."
 autowrap_mode = 3
 
 [node name="FlashButton" type="Button" parent="Margin/Columns/Right"]
 layout_mode = 2
-tooltip_text = "Acende tudo por meio segundo."
+tooltip_text = "Lights everything up for half a second."
 text = "Flash (+3 s)"
 
 [node name="LanternButton" type="Button" parent="Margin/Columns/Right"]
 layout_mode = 2
-tooltip_text = "Uma luz segue o mouse por 4 segundos."
-text = "Lanterna (+5 s)"
+tooltip_text = "A light follows your mouse for 4 seconds."
+text = "Flashlight (+5 s)"
 
 [node name="RadarButton" type="Button" parent="Margin/Columns/Right"]
 layout_mode = 2
-tooltip_text = "Por 3 segundos o cursor fica vermelho perto da vela e azul longe."
+tooltip_text = "For 3 seconds your cursor turns red near the candle and blue far away."
 text = "Radar (+4 s)"
 
 [node name="PowerHelp" type="Label" parent="Margin/Columns/Right"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.6, 0.6, 0.68, 1)
 theme_override_font_sizes/font_size = 12
-text = "Flash: acende tudo por 0,5 s.
-Lanterna: luz no mouse por 4 s.
-Radar: cursor esquenta perto da vela por 3 s.
+text = "Flash: lights everything for 0.5 s.
+Flashlight: light around the mouse for 4 s.
+Radar: cursor heats up near the candle for 3 s.
 
-Erro de clique: +1 s."
+Wrong click: +1 s."
 autowrap_mode = 3

@@ -14,8 +14,7 @@ var current_id := ""
 @onready var play_area: Control = $Margin/Columns/Center/PlayArea
 @onready var timer_label: Label = $Margin/Columns/Center/TimerLabel
 @onready var status_label: Label = $Margin/Columns/Center/StatusLabel
-@onready var level_label: Label = $Margin/Columns/Left/LevelLabel
-@onready var level_slider: HSlider = $Margin/Columns/Left/LevelSlider
+@onready var level_buttons: GridContainer = $Margin/Columns/Left/LevelButtons
 @onready var id_edit: LineEdit = $Margin/Columns/Left/IdRow/IdEdit
 @onready var id_error: Label = $Margin/Columns/Left/IdError
 @onready var record_label: Label = $Margin/Columns/Left/RecordLabel
@@ -33,11 +32,21 @@ func _ready() -> void:
 	$Margin/Columns/Left/LoadButton.pressed.connect(_load_typed_id)
 	$Margin/Columns/Left/IdRow/CopyButton.pressed.connect(func(): DisplayServer.clipboard_set(current_id))
 	id_edit.text_submitted.connect(func(_text): _load_typed_id())
-	level_slider.value_changed.connect(func(value): _load_board(current_seed, int(value)))
+	var level_group := ButtonGroup.new()
+	for level in Difficulty.LEVEL_NAMES.size():
+		var button := Button.new()
+		button.text = Difficulty.LEVEL_NAMES[level]
+		button.toggle_mode = true
+		button.button_group = level_group
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.add_theme_color_override("font_pressed_color", Color(1, 0.84, 0.4))
+		button.add_theme_color_override("font_hover_pressed_color", Color(1, 0.84, 0.4))
+		button.pressed.connect(func(): _load_board(current_seed, level))
+		level_buttons.add_child(button)
 	for id in powerup_buttons:
 		powerup_buttons[id].pressed.connect(play_area.activate_powerup.bind(id))
 	play_area.state_changed.connect(_on_state_changed)
-	play_area.miss_clicked.connect(func(): status_label.text = "Errou! +1 s")
+	play_area.miss_clicked.connect(func(): status_label.text = "Missed! +1 s")
 	play_area.finished.connect(_on_finished)
 	_load_board(BoardId.random_seed(), 0)
 
@@ -48,7 +57,7 @@ func _process(_delta: float) -> void:
 		return
 	var text := _format_time(state.total_time())
 	if state.penalty > 0.0:
-		text += "  (penalidade +%s)" % _format_time(state.penalty)
+		text += "  (penalty +%d s)" % roundi(state.penalty)
 	timer_label.text = text
 	for id in powerup_buttons:
 		powerup_buttons[id].disabled = state.phase != RoundState.Phase.DARK or state.used.has(id)
@@ -61,8 +70,7 @@ func _load_board(seed: int, level: int) -> void:
 	current_id = BoardId.encode(seed, level)
 	id_edit.text = current_id
 	id_error.visible = false
-	level_slider.set_value_no_signal(level)
-	level_label.text = "Dificuldade: %s" % Difficulty.LEVEL_NAMES[level]
+	level_buttons.get_child(level).set_pressed_no_signal(true)
 	_update_record()
 	play_area.start_round(BoardGenerator.generate(seed, level))
 
@@ -79,27 +87,28 @@ func _on_state_changed() -> void:
 	var state: RoundState = play_area.state
 	match state.phase:
 		RoundState.Phase.WAITING:
-			status_label.text = "Clique na área preta para acender."
+			status_label.text = "Click the dark area to light it up."
 		RoundState.Phase.LIT:
-			status_label.text = "Memorize a vela diferente!"
+			status_label.text = "Memorize the odd candle!"
 		RoundState.Phase.DARK:
-			status_label.text = "Clique onde estava a vela diferente."
+			status_label.text = "Click where the odd candle was."
 
 
 func _on_finished(total: float, misses: int) -> void:
-	var text := "Achou! %s" % _format_time(total)
+	var text := "Found it! %s" % _format_time(total)
 	if misses > 0:
-		text += " (%d %s)" % [misses, "erro" if misses == 1 else "erros"]
+		text += " (%d %s)" % [misses, "miss" if misses == 1 else "misses"]
 	if records.submit(current_id, total):
-		text += " — Novo recorde!"
+		text += " — New best!"
 	status_label.text = text
 	_update_record()
 
 
 func _update_record() -> void:
 	var best := records.best(current_id)
-	record_label.text = "Recorde: —" if best < 0.0 else "Recorde: %s" % _format_time(best)
+	record_label.text = "Best: —" if best < 0.0 else "Best: %s" % _format_time(best)
 
 
 func _format_time(seconds: float) -> String:
-	return ("%.2f s" % seconds).replace(".", ",")
+	var millis := roundi(seconds * 1000.0)
+	return "%02d:%02d.%03d" % [millis / 60000, (millis / 1000) % 60, millis % 1000]
