@@ -58,8 +58,16 @@ func click(norm_pos: Vector2, area_size: Vector2) -> String:
 func is_on_unique(norm_pos: Vector2, area_size: Vector2) -> bool:
 	var center: Vector2 = board.candles[board.unique_index] * area_size
 	var half := BoardGenerator.CANDLE_SIZE_NORM * area_size / 2.0 + Vector2.ONE * float(_settings.hit_tolerance)
-	var offset := (norm_pos * area_size - center).abs()
-	return offset.x <= half.x and offset.y <= half.y
+	var click_px := norm_pos * area_size
+	var offset := (click_px - center).abs()
+	if offset.x > half.x or offset.y > half.y:
+		return false
+	# Tolerance must never turn a click on a neighbouring candle into a hit.
+	var own_distance := click_px.distance_to(center)
+	for candle in board.candles:
+		if (candle * area_size).distance_to(click_px) < own_distance:
+			return false
+	return true
 
 
 func use_powerup(id: String) -> bool:

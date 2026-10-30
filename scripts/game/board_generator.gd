@@ -8,7 +8,7 @@ const Difficulty := preload("res://scripts/game/difficulty.gd")
 const CANDLE_SIZE_NORM := Vector2(0.035, 0.12)
 const MARGIN := Vector2(0.04, 0.09)
 const SPACING := 1.3
-const MAX_ATTEMPTS := 2000
+const MAX_ATTEMPTS := 300
 
 
 static func generate(seed: int, level: int) -> Dictionary:
