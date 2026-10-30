@@ -49,11 +49,15 @@ func test_miss_penalty() -> void:
 	check(state.phase == RoundState.Phase.DARK, "still dark")
 
 
-func test_tolerance() -> void:
-	var half_width := BoardGenerator.CANDLE_SIZE_NORM.x * AREA.x / 2.0
-	var click := Vector2(0.8 + (half_width + 15.0) / AREA.x, 0.5)
-	check(_dark(0).click(click, AREA) == "hit", "easy tolerance hit")
-	check(_dark(3).click(click, AREA) == "miss", "insane tolerance miss")
+func test_hit_only_on_candle() -> void:
+	var size := BoardGenerator.CANDLE_SIZE_NORM * AREA
+	var center := Vector2(0.8, 0.5) * AREA
+	var top_left := center - size / 2.0
+	for level in 4:
+		check(_dark(level).click((center + Vector2(size.x / 2.0 + 3.0, 0.0)) / AREA, AREA) == "miss", "beside body, level %d" % level)
+		check(_dark(level).click((top_left + Vector2(size.x - 1.0, size.y - 1.0)) / AREA, AREA) == "hit", "body corner, level %d" % level)
+		check(_dark(level).click((top_left + Vector2(1.0, 1.0)) / AREA, AREA) == "miss", "empty corner beside flame, level %d" % level)
+		check(_dark(level).click((top_left + Vector2(size.x / 2.0, size.y * 0.15)) / AREA, AREA) == "hit", "flame, level %d" % level)
 
 
 func test_ignored_outside_dark() -> void:

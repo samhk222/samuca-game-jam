@@ -55,19 +55,18 @@ func click(norm_pos: Vector2, area_size: Vector2) -> String:
 	return "miss"
 
 
+## Hit only on the candle itself: the wax body, or the narrow wick/flame column above it
+## (same proportions as candle_drawer.gd).
 func is_on_unique(norm_pos: Vector2, area_size: Vector2) -> bool:
+	var size := BoardGenerator.CANDLE_SIZE_NORM * area_size
 	var center: Vector2 = board.candles[board.unique_index] * area_size
-	var half := BoardGenerator.CANDLE_SIZE_NORM * area_size / 2.0 + Vector2.ONE * float(_settings.hit_tolerance)
-	var click_px := norm_pos * area_size
-	var offset := (click_px - center).abs()
-	if offset.x > half.x or offset.y > half.y:
+	var local := norm_pos * area_size - (center - size / 2.0)
+	if local.y < 0.0 or local.y > size.y:
 		return false
-	# Tolerance must never turn a click on a neighbouring candle into a hit.
-	var own_distance := click_px.distance_to(center)
-	for candle in board.candles:
-		if (candle * area_size).distance_to(click_px) < own_distance:
-			return false
-	return true
+	var body_top := size.y * 0.4
+	if local.y >= body_top:
+		return local.x >= 0.0 and local.x <= size.x
+	return absf(local.x - size.x / 2.0) <= size.x * 0.42
 
 
 func use_powerup(id: String) -> bool:
